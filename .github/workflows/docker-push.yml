@@ -24,8 +24,7 @@ jobs:
         run: docker build . --file ./php-alpine/Dockerfile --build-arg COMPOSER_VERSION=$COMPOSER_VERSION
 
   push:
-    needs: test
-
+  
     runs-on: ubuntu-latest
     if: github.event_name == 'push'
 
