@@ -22,11 +22,11 @@ jobs:
         run: docker build . --file ./php-alpine/Dockerfile --build-arg COMPOSER_VERSION=$COMPOSER_VERSION --tag $IMAGE_NAME
 
       - name: Log into GitHub Container Registry
-        run: echo "${{ secrets.SECRET_TOKEN }}" | docker login https://ghcr.io -u ${{ github.actor }} --password-stdin
+        run: echo "${{ secrets.SECRET_TOKEN }}" | docker login docker pull docker pull docker.pkg.github.com/equipment-manager/equipment-manager-environment-u ${{ github.actor }} --password-stdin
 
       - name: Push image to GitHub Container Registry
         run: |
-          IMAGE_ID=ghcr.io/${{ github.repository_owner }}/$IMAGE_NAME
+          IMAGE_ID=docker.pkg.github.com/equipment-manager/equipment-manager-environment/${{ github.repository_owner }}/$IMAGE_NAME
 
           # Change all uppercase to lowercase
           IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
