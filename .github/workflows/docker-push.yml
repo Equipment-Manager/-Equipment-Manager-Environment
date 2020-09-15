@@ -34,16 +34,16 @@ jobs:
       - name: Build image
         run: |
           IMAGE_NAME=$(echo $IMAGE_NAME | tr '[A-Z]' '[a-z]')
-          VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
           docker build . --file ./php-alpine/Dockerfile --build-arg COMPOSER_VERSION=$COMPOSER_VERSION --tag $IMAGE_NAME
-          
+
       - name: Log into GitHub Container Registry
         run: echo "${{ secrets.SECRET_TOKEN }}" | docker login docker.pkg.github.com  -u ${{ github.actor }} --password-stdin
 
       - name: Push image to GitHub Container Registry
         run: |
           IMAGE_NAME=$(echo $IMAGE_NAME | tr '[A-Z]' '[a-z]')
+          VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
           IMAGE_ID=docker.pkg.github.com/equipment-manager/equipment-manager-environment/$IMAGE_NAME
           IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
-          docker tag $IMAGE_NAME $IMAGE_ID:$VERSION
+          docker tag $IMAGE_NAME:latest $IMAGE_ID:$VERSION
           docker push $IMAGE_ID:$VERSION
