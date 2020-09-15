@@ -2,29 +2,17 @@ name: Docker
 
 on:
   push:
-
     tags:
       - v*
-
-  pull_request:
 
 env:
   IMAGE_NAME: ${{ secrets.IMAGE_NAME }}
   COMPOSER_VERSION: ${{ secrets.COMPOSER_VERSION }}
 
 jobs:
-  test:
-    runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request'
-
-    steps:
-      - uses: actions/checkout@v2
-
-      - name: Run tests
-        run: docker build . --file ./php-alpine/Dockerfile --build-arg COMPOSER_VERSION=$COMPOSER_VERSION
-
   push:
-  
+    needs: test
+
     runs-on: ubuntu-latest
     if: github.event_name == 'push'
 
@@ -32,18 +20,29 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Build image
-        run: |
-          IMAGE_NAME=$(echo $IMAGE_NAME | tr '[A-Z]' '[a-z]')
-          docker build . --file ./php-alpine/Dockerfile --build-arg COMPOSER_VERSION=$COMPOSER_VERSION --tag $IMAGE_NAME
+        run: docker build . --file Dockerfile --tag $IMAGE_NAME
 
       - name: Log into GitHub Container Registry
-        run: echo "${{ secrets.SECRET_TOKEN }}" | docker login docker.pkg.github.com  -u ${{ github.actor }} --password-stdin
+        run: echo "${{ secrets.SECRET_TOKEN }}" | docker login https://ghcr.io -u ${{ github.actor }} --password-stdin
 
       - name: Push image to GitHub Container Registry
         run: |
-          IMAGE_NAME=$(echo $IMAGE_NAME | tr '[A-Z]' '[a-z]')
-          VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
-          IMAGE_ID=docker.pkg.github.com/equipment-manager/equipment-manager-environment/$IMAGE_NAME
+          IMAGE_ID=ghcr.io/${{ github.repository_owner }}/$IMAGE_NAME
+
+          # Change all uppercase to lowercase
           IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
-          docker tag $IMAGE_NAME:latest $IMAGE_ID:$VERSION
+
+          # Strip git ref prefix from version
+          VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
+
+          # Strip "v" prefix from tag name
+          [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
+
+          # Use Docker `latest` tag convention
+          [ "$VERSION" == "develop" ] && VERSION=latest
+
+          echo IMAGE_ID=$IMAGE_ID
+          echo VERSION=$VERSION
+
+          docker tag $IMAGE_NAME $IMAGE_ID:$VERSION
           docker push $IMAGE_ID:$VERSION
