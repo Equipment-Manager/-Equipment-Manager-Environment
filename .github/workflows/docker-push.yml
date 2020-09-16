@@ -22,7 +22,7 @@ jobs:
         run: docker build . --file ./php-alpine/Dockerfile --build-arg COMPOSER_VERSION=$COMPOSER_VERSION --tag $IMAGE_NAME
 
       - name: Log into GitHub Container Registry
-        run: echo "${{ secrets.SECRET_TOKEN }}" | docker login docker pull docker pull docker.pkg.github.com/equipment-manager/equipment-manager-environment-u ${{ github.actor }} --password-stdin
+        run: echo "${{ secrets.SECRET_TOKEN }}" | docker login docker pull docker pull https://ghcr.io -u ${{ github.actor }} --password-stdin
 
       - name: Push image to GitHub Container Registry
         run: |
