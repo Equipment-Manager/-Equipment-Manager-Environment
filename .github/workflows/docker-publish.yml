@@ -10,7 +10,7 @@ on:
 
 env:
   # TODO: Change variable to your image's name.
-  IMAGE_NAME: equipmentManager-php
+  IMAGE_NAME: equipmentmanager-php
   COMPOSER_VERSION: ${{ secrets.COMPOSER_VERSION }}
 
 jobs:
@@ -23,9 +23,7 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Build image
-        run: |
-          IMAGE_NAME=$(echo $IMAGE_NAME | tr '[A-Z]' '[a-z]')
-          docker build . --file ./php-alpine/Dockerfile --build-arg COMPOSER_VERSION=$COMPOSER_VERSION --tag $IMAGE_NAME
+        run: docker build . --file ./php-alpine/Dockerfile --build-arg COMPOSER_VERSION=$COMPOSER_VERSION --tag $IMAGE_NAME
 
       - name: Log into GitHub Container Registry
       # TODO: Create a PAT with `read:packages` and `write:packages` scopes and save it as an Actions secret `CR_PAT`
