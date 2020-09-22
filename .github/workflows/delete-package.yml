@@ -1,0 +1,15 @@
+name: Docker Image CI
+
+on:
+  push:
+    branches: [ delete-package ]
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/delete-package-versions@v1
+        with:
+          package-name: 'equipmentmanager-php'
